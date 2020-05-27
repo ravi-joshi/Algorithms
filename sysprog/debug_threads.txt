@@ -1,0 +1,6 @@
+1. Race conditions could occur on a multi-threaded architecture
+2. Race conditions could be severe if multi-threaded applications run on a multi-processor systems
+3. Most of the time, the issues would occur around the places where threads accessing a shared resource, such as a global variable.
+4. Protecting a global variable with appropriate locking would make sure each thread has exclusive access to the variable and their
+operations on the variable are sequential eliminating the catastrophic effects such as crashes.
+

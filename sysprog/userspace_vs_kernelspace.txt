@@ -1,0 +1,17 @@
+softwares implemented in kernel space:
+
+1. softwares needing quick access to the hardware and hardware resources
+2. softwares that cannot tolerate latency
+3. softwares that are designed to provide a specific service
+4. softwares that need real time access to kernel and kernel resources without the overhead of context switches
+5. Most importantly, the softwares that are required to accomplish critical things
+
+softwares implemented in user space:
+
+1. Non-critical
+2. Does not need direct access to the hardware, hardware resources or kernel resources
+3. Is non-real time and willing to sleep
+4. May or may not do disk/IO operations
+5. Software that performs a lot of processing
+
+

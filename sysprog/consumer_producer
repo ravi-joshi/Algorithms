@@ -1,0 +1,13 @@
+What is consumer/producer problem?
+
+. producer produces data
+. consumer consumes data
+. they share common resource, that is buffer
+. producer produces data when the buffer is not full
+. consumer consumes data as long as the buffer is not empty
+. producer sleeps if the buffer is full and consumer sleeps if the buffer is empty
+. the consumer is notified and woken up (if sleeping) when the producer produces the data
+. the producer is notified and woken up (if sleeping) when consumer consumes the data
+---
+
+

@@ -1,0 +1,7 @@
+- Tree is a special form of graph
+- Bredth-first-traversal (level order traversal)
+- Depth-fitst-traversal
+	- In-order traversal
+	- Pre-order traversal
+	- Post-order traversal
+
