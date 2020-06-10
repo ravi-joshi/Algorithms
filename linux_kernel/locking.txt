@@ -1,0 +1,112 @@
+There is no reason to have locks when it is single CPU and non-preemptive kernel.
+When nobody can run simultaneously, locks are redundant. 
+
+On a SMP, non-preemptive kernel does not make sense - hence it doesn't exist.
+
+Kernel locking between different bottom halves (Single-CPU with preemptive kernel)
+--------------------------------------------------------------------------------
+. locking between softIRQs of same priority
+Since there is single CPU, there is no need for locking. The softIRQ will run serially.
+
+. locking between softIRQs of different priority
+Higher priority softIRQ can preempt lower priority softIRQ due to pre-emptive support
+in the kernel. A higher priority softIRQ will most likely run to completion unless
+there is another higher priority softirq. The lower priority softirq will be pre-empted
+and will be run again after the high priority softirq completes the run. There is a high
+chance that lower priority softirq may starve. spinlocks can be used to protect shared
+data between these.
+
+. locking between tasklets of same priority
+The tasklets will run serially, no need of locking.
+
+. locking between tasklets of different priority
+spinlocks would serve the purpose. higher priority tasklet will run to completion 
+before yielding to lower priority tasklet.
+
+. locking between workqueues of same priority
+No need to have any locking.
+
+. locking between workqueues of different priority
+Since workqueues are allowed to sleep, mutex will serve the purpose. 
+
+. locking between softirq and tasklet
+tasklets are built on top of softirqs. Higher priority tasklet may preempt lower priority
+softirq or vice-versa and run to completion. Since neither are allowed to sleep, spinlock
+is the only choice.
+
+. locking between softirq and workqueue
+workqueue is allowed to sleep but softirq can't. Modified spinlock that disables bottom
+half (spin_lock_bh() and spin_unlock_bh()) should be used in workqueue and simple spinlocks
+should be in softirq.
+
+. locking between tasklet and workqueue
+Same as above.
+
+. locking between softirq, tasklet and workqueue
+Spinlocks to be used in softirq and tasklet. Modified spinlock disabling bottom half to be
+used in workqueues.
+
+Kernel locking between different bottom halves (SMP)
+---------------------------------------------------------
+. locking between softIRQs of same priority
+Since they can run concurrently on other CPUs, spin_lock() and spin_unlock() should be used.
+spin_lock_irqsave() and spin_unlock() could also be used.
+
+. locking between softIRQs of different priority
+Same as above.
+
+. locking between tasklets of same priority
+No need of locking, they don't run concurrently against themselves.
+
+. locking between tasklets of different priority
+spin_lock() and spin_unlock() is good enough.
+
+. locking between workqueues of same priority
+Simplest of all, use mutex to protect the shared data. mutex_lock_interruptible() and mutex_unlock() should be used.
+
+. locking between workqueues of different priority
+Same as above.
+
+. locking between softirq and workqueue
+Two issues will be seen. Workqueue will be preempted by the softirq and softirq can run concurrently on other CPUs.
+For protecting data, softirq preemption should be disabled before trying to acquire the lock - spin_lock_bh() and
+spin_unlock_bh() will do the job. spin_lock_bh() disables softirqs on the local CPU and acquires lock and spin_unlock_bh()
+does the reverse.
+
+. locking between tasklet and workqueue
+same as above since tasklet is run from a softirq with an exception that they are not reentrant (not run on multiple CPUs
+concurrently).
+
+. locking between timer and workqueue
+same as above since timers are run from softirq context.
+
+. locking between tasklet and timer
+Since tasklets are not reentrant, spi_lock() and spin_unlock() should work.
+
+. locking between softirq and tasklet
+softirq is reentrant and it can preempt tasklet. spin_lock() and spin_unlock() should be used.
+
+. locking between softirq, tasklet, timer and workqueue
+
+Remember the advice above: you can always use spin_lock_irqsave(), which is a superset of all other spinlock primitives.
+ 			IRQ Handler A 	IRQ Handler B 	Softirq A 	Softirq B 	Tasklet A 	Tasklet B 	Timer A 	Timer B 	User Context A 	User Context B
+IRQ Handler A 				None 	  	  	  	  	  	  	  	  	 
+IRQ Handler B 				SLIS 			None 	  	  	  	  	  	  	  	 
+Softirq A 	SLI 			SLI 			SL 	  	  	  	  	  	  	 
+Softirq B 	SLI 			SLI 			SL 			SL 	  	  	  	  	  	 
+Tasklet A 	SLI 			SLI 			SL 			SL 			None 	  	  	  	  	 
+Tasklet B 	SLI 			SLI 			SL 			SL 			SL 			None 	  	  	  	 
+Timer A 	SLI 			SLI 			SL 			SL 			SL 			SL 			None 	  	  	 
+Timer B 	SLI 			SLI 			SL 			SL 			SL 			SL 			SL 			None 	  	 
+User Context A 	SLI 		SLI 			SLBH 		SLBH 		SLBH 		SLBH 		SLBH 		SLBH 		None 	 
+User Context B 	SLI 		SLI 			SLBH 		SLBH 		SLBH 		SLBH 		SLBH 		SLBH 		MLI 		None
+
+SL   - spin lock
+SLI  - spin lock irq save
+SLBH - spi lock bottom half
+
+Spin lock bottom half disables bottom half processing on the local CPU and acquires the lock.
+If that is not done, the bottom half can preempt the user context and try to acquire the same
+lock.
+
+
