@@ -108,5 +108,19 @@ SLBH - spi lock bottom half
 Spin lock bottom half disables bottom half processing on the local CPU and acquires the lock.
 If that is not done, the bottom half can preempt the user context and try to acquire the same
 lock.
+=====
+
+Why interrupt context should not hold locks that sleep, something like mutex or semaphore?
+
+- Since the interrupt context is not schedulable, the interrupt context might be put to permanant
+sleep and impact the system performance. If the interrupt context goes to sleep with interrupts
+disabled, the CPU virtually becomes unusable.
+=====
+
+Why semaphore can't be acquired while using spin lock or vice-versa?
+- Since attempt to hold can put the execution context to sleep and you are not allowed to sleep
+while holding the spinlock.
+=====
+
 
 
