@@ -60,4 +60,3 @@ void**** alloc_4d_array(int r, int c, int h, int d)
 void main(void)
 {
 }
-
