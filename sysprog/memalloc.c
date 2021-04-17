@@ -9,10 +9,10 @@ void** alloc_2d_array(int r, int c)
 	void **arr;
 
 	// allocate memory row-wise first
-	arr = malloc(sizeof(int *) * row);
+	arr = malloc(sizeof(int*) * r);
 
-	for (int i =0; i < row; i++) {
-		arr[i] = malloc(sizeof(int) * col);
+	for (int i = 0; i < r; i++) {
+		arr[i] = malloc(sizeof(int) * c);
 	}
 
 	return arr;

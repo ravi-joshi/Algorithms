@@ -39,7 +39,8 @@ void insert_after(struct node **head, int data_after, int data)
 
 		if (tmp->data == data_after) {
 			prev->next = new;
-			new->next = next;			
+			new->next = next;
+			break;
 		}
 		tmp = tmp->next;
 	}
