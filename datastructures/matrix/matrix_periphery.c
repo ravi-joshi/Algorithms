@@ -1,4 +1,7 @@
-/*
+/**
+
+Print elements around the periphery of the matrix
+
 n = 4
 
 00 01 02 03

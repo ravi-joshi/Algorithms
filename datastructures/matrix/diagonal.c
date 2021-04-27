@@ -40,6 +40,6 @@ void print(int n)
 
 int main(void)
 {
-	print(4);
+	print(5);
 	return 0;
 }
