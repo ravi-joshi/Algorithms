@@ -4,3 +4,10 @@
 4. Protecting a global variable with appropriate locking would make sure each thread has exclusive access to the variable and their
 operations on the variable are sequential eliminating the catastrophic effects such as crashes.
 
+5. When to use mutex?
+- Mutexes are synchronization primitives, used mainly to protect a critical section of the code or a shared resource.
+
+6. When to use semaphore?
+- Semaphore is a signaling mechanism, used mainly to synchronize threads in a multi-threaded application.
+
+7. 

@@ -1,0 +1,30 @@
+There are various methods of debugging linux kernel and kernel modules.
+
+1. Enable kernel debugging options
+	- memory allocation / deallocation related issues - SLUB
+	- page allocation and dellocation issues - PAGE
+	- spinlock related issues - SPIN_LOCK
+	- spinlock sleep related issue - SPINLOCK_SLEEP
+	- kernel crash dump - KALLSYMS
+	- slower system performance - KENEL_PROFILE
+
+2. Debugging via printing
+	- /var/log/messages - if klogd and/or syslogd are running
+	- user need to read /proc/kmsg or dmesg - if klogd is not running
+	- rate limiting is important
+
+3. Exporting information to /proc software file system
+
+4. Debugging via ioctls or other synonymous methods (such as netlink interface)
+
+5. kernel debugger
+
+6. Debugging by watching
+
+7. Network performance debugging
+	- network tools (netstat, ethtool etc)
+	- /proc/cpuinfo
+	- /proc/interrupts
+
+8. Analyzing kernel crash dumps
+

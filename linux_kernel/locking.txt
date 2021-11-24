@@ -37,7 +37,7 @@ is the only choice.
 . locking between softirq and workqueue
 workqueue is allowed to sleep but softirq can't. Modified spinlock that disables bottom
 half (spin_lock_bh() and spin_unlock_bh()) should be used in workqueue and simple spinlocks
-should be in softirq.
+should be used in softirq.
 
 . locking between tasklet and workqueue
 Same as above.
@@ -46,8 +46,8 @@ Same as above.
 Spinlocks to be used in softirq and tasklet. Modified spinlock disabling bottom half to be
 used in workqueues.
 
-Kernel locking between different bottom halves (SMP)
----------------------------------------------------------
+Kernel locking between different bottom halves (SMP) - multi-processor or multi-core support
+---------------------------------------------------------------------------------------------
 . locking between softIRQs of same priority
 Since they can run concurrently on other CPUs, spin_lock() and spin_unlock() should be used.
 spin_lock_irqsave() and spin_unlock() could also be used.
@@ -56,19 +56,21 @@ spin_lock_irqsave() and spin_unlock() could also be used.
 Same as above.
 
 . locking between tasklets of same priority
-No need of locking, they don't run concurrently against themselves.
+No need of locking, they don't run concurrently against themselves on different CPUs.
 
 . locking between tasklets of different priority
 spin_lock() and spin_unlock() is good enough.
 
 . locking between workqueues of same priority
 Simplest of all, use mutex to protect the shared data. mutex_lock_interruptible() and mutex_unlock() should be used.
+Even though, the notion is same, the mutexes used in kernel code has no correlation with userspace mutexes.
 
 . locking between workqueues of different priority
-Same as above.
+Same as above. Work queues are allowed to sleep.
 
 . locking between softirq and workqueue
-Two issues will be seen. Workqueue will be preempted by the softirq and softirq can run concurrently on other CPUs.
+If there is a need to protect data between softIRQ and workQ, then two issues will be seen.
+Workqueue will be preempted by the softirq and softirq can run concurrently on other CPUs.
 For protecting data, softirq preemption should be disabled before trying to acquire the lock - spin_lock_bh() and
 spin_unlock_bh() will do the job. spin_lock_bh() disables softirqs on the local CPU and acquires lock and spin_unlock_bh()
 does the reverse.
@@ -121,6 +123,4 @@ Why semaphore can't be acquired while using spin lock or vice-versa?
 - Since attempt to hold can put the execution context to sleep and you are not allowed to sleep
 while holding the spinlock.
 =====
-
-
 
