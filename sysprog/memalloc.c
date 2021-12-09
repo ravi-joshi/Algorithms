@@ -38,22 +38,31 @@ void** alloc_2d_array(int r, int c)
 	*(*(*(arr + i) + j) + k) -> value of the 'k'th element in the 'j'th row of 'i'th 2D array
 */
 
-void*** alloc_3d_array(int a, int r, int c)
+void*** alloc_3d_array(int h, int r, int c)
 {
-	void ***p = malloc(sizeof(int **) * a); // a -> num of 2D arrays
+	void ***p = malloc(sizeof(int**) * h); // a -> num of 2D arrays
 	// using size of pointer to the pointer to denote that the
 	// pointer is pointing to the 2D arrays
 
 	if (p) {
-		for (int i = 0; i < r; i++) {
-			p[i] = malloc(sizeof(int *) * c);
+		for (int i = 0; i < h; i++) {
+			p[i] = malloc(sizeof(int*) * r);
 			if (p[i]) {
-				for (int j = 0; j < c; j++) {
-					p[i][j] = malloc(sizeof(int) * h);
+				p[i][j] = malloc(sizeof(int) * h);
+				if (!p[i][j]) {
+					// free p[i]
+					// free p
+					// return
 				}
 			}
 		}
 	}
+
+
+	// do operation with p
+	// free p[i][j]
+	// free p[i]
+	// free p
 
 	return p;
 }

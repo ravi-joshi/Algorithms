@@ -33,6 +33,24 @@ struct node* pop(struct node **head)
 	return tmp;
 }
 
+void delete_node(struct node **head, int key) {
+	struct node *tmp = *head;
+	struct node *prev;
+
+	// handle head node deletion here
+
+	// node is not a head node
+	prev = tmp;
+	while (tmp != NULL) {
+		if (tmp->key = key) {
+			prev->next = tmp->next;
+			tmp->next = NULL;
+		}
+		prev = tmp;
+		tmp = tmp->next;
+	}
+}
+
 void delnode(struct node **head, int key)
 {
 	struct node *prev;

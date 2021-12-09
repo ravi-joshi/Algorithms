@@ -23,6 +23,10 @@ struct node {
 // an entry in to the queue
 
 sem_t sem;
+sem_t full;
+sem_t empty;
+
+pthread_mutex_t mutex;
 struct node *head;
 
 // process task
@@ -36,13 +40,17 @@ void process(struct node *task)
 void* consumer(void *arg)
 {
 	struct node *task;
+	//int n = 0;
+
+	//while (n++ < 5) {
 	while (1) {
-		sem_wait(&sem);
+		sem_wait(&full);
 		if (!head) {
 			printf("no tasks to process\n");
 			sem_post(&sem);
 		}
 
+		pthread_mutex_lock(&mutex);
 		// process as long as there are tasks
 		while (head) {
 			task = head;
@@ -50,7 +58,11 @@ void* consumer(void *arg)
 			task->next = NULL;
 			process(task);
 		}
+		pthread_mutex_unlock(&mutex);
+
 		sem_post(&sem);
+		sem_post(&empty);
+		
 	}
 }
 
@@ -58,18 +70,23 @@ void* consumer(void *arg)
 void* producer(void *arg)
 {
 	struct node *new;
+	//int n = 0;
 
+	//while (n++ < 5) {
 	while (1) {
-		sem_wait(&sem);	// wait for the queue access
+		sem_wait(&empty);	// wait for the queue access
 		new = malloc(sizeof(new));
 		if (!new)
 			return NULL;
 
+		pthread_mutex_lock(&mutex);
 		new->timeout = rand() + 10;
 		new->next = head;
 		head = new;
+		pthread_mutex_unlock(&mutex);
+
 		printf("producer added task, timeout: %d\n", new->timeout);
-		sem_post(&sem);
+		sem_post(&full);
 	}
 }
 
@@ -78,6 +95,10 @@ void main(void)
 {
 	pthread_t t[2];
 	sem_init(&sem, 0, 1);
+	sem_init(&full, 0, 0);
+	sem_init(&empty, 0, 5);
+
+	pthread_mutex_init(&mutex, NULL);
 
 	if (pthread_create(&t[0], 0, consumer, NULL) > 0) {
 		printf("thread creation failed\n");
@@ -99,5 +120,9 @@ void main(void)
 	}
 
 	sem_destroy(&sem);
+	sem_destroy(&empty);
+	sem_destroy(&full);
+
+	pthread_mutex_destroy(&mutex);
 }
 

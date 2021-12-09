@@ -18,39 +18,48 @@ void push(struct list **head, int val)
 		return;
 
 	new->val = val;
-	
-	if (*head == NULL) {
-		*head = new;	
-		*head->next = head;
-	} else {
-		new->next = *head;
-		*head = new;
-	}
+	// push is always at the head
+	*head = new;
+	new->next = *head;
 }
 
 void insert_tail(struct list **head, int val)
 {
-	struct list *curr = *head; 
-	struct list *prev;
-	struct list *new;
-
-	while (curr == *head) {
-		prev = curr;
-		curr = curr->next;
-	}
-
-	new = malloc(sizeof(struct list));
+	struct list	*new = malloc(sizeof(struct list));
 	if (!new)
 		return;
 
 	new->val = val;
-	prev->next = new;
-	new->next = prev;
+	new->next = NULL;
+
+	struct list *tmp = *head;
+
+	if (*head == NULL) {
+		// insert at the head
+		*head = new;
+		new->next = *head;
+		return;
+	}
+
+	// list has at least one element
+	while (tmp->next != NULL) {
+		tmp = tmp->next;
+	}
+
+	tmp->next = new;
 }
 
 // pop
-int pop(struct list **head)
+struct list* pop(struct list **head)
 {
+	struct list *tmp = *head;
+	if (tmp == NULL)
+		return NULL;
+
+	*head = tmp->next;
+	tmp->next = NULL
+
+	return tmp;
 }
 
 // print

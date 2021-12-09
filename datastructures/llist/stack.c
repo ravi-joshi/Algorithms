@@ -25,6 +25,7 @@ struct node* pop(struct node **head)
 	struct node *tmp = *head;
 	if (tmp != NULL) {
 		(*head) = tmp->next;
+		tmp->next = NULL;
 	}
 
 	return tmp;
